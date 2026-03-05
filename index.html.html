@@ -1,0 +1,2528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pesa — UX Writing Catalog</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0D0F0E;
+    --paper: #F5F1E8;
+    --cream: #EDE8D8;
+    --gold: #C9992A;
+    --gold-light: #F2D98A;
+    --emerald: #1A6B4A;
+    --emerald-light: #D4EDE3;
+    --rust: #C0432B;
+    --rust-light: #F5DDD9;
+    --sky: #1A5C8F;
+    --sky-light: #D4E8F5;
+    --purple: #5B3B8F;
+    --purple-light: #E8E0F5;
+    --mid: #6B6B5E;
+    --border: #D4CFBE;
+    --white: #FFFFFF;
+    --shadow: rgba(13,15,14,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* ── GRAIN TEXTURE ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* ── SIDEBAR NAV ── */
+  .sidebar {
+    position: fixed;
+    left: 0; top: 0; bottom: 0;
+    width: 280px;
+    background: var(--ink);
+    color: var(--paper);
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+    overflow-y: auto;
+  }
+
+  .sidebar-brand {
+    padding: 32px 28px 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .brand-wordmark {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    color: var(--gold-light);
+  }
+
+  .brand-sub {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    margin-top: 4px;
+  }
+
+  .sidebar-meta {
+    padding: 16px 28px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .meta-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 6px;
+  }
+
+  .meta-row strong {
+    color: rgba(255,255,255,0.85);
+    font-weight: 500;
+  }
+
+  .meta-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--gold);
+    flex-shrink: 0;
+  }
+
+  .sidebar-nav {
+    flex: 1;
+    padding: 20px 0;
+  }
+
+  .nav-section-label {
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    padding: 16px 28px 8px;
+    font-weight: 600;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 28px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.6);
+    cursor: pointer;
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+    text-decoration: none;
+  }
+
+  .nav-item:hover {
+    color: var(--paper);
+    background: rgba(255,255,255,0.05);
+  }
+
+  .nav-item.active {
+    color: var(--gold-light);
+    border-left-color: var(--gold);
+    background: rgba(201,153,42,0.08);
+  }
+
+  .nav-icon {
+    font-size: 15px;
+    width: 18px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .nav-badge {
+    margin-left: auto;
+    background: rgba(255,255,255,0.1);
+    color: rgba(255,255,255,0.5);
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── MAIN CONTENT ── */
+  .main {
+    margin-left: 280px;
+    min-height: 100vh;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── SECTION ── */
+  .section {
+    display: none;
+    padding: 60px 64px;
+    min-height: 100vh;
+    animation: fadeIn 0.4s ease;
+  }
+
+  .section.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── COVER PAGE ── */
+  .cover {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px 64px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cover-bg-pattern {
+    position: absolute;
+    top: -100px;
+    right: -100px;
+    width: 600px;
+    height: 600px;
+    opacity: 0.04;
+    background: radial-gradient(circle, var(--ink) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  .cover-eyebrow {
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+
+  .cover-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(52px, 7vw, 88px);
+    font-weight: 900;
+    line-height: 0.95;
+    letter-spacing: -2px;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+
+  .cover-title em {
+    font-style: italic;
+    color: var(--emerald);
+  }
+
+  .cover-subtitle {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(24px, 3vw, 36px);
+    font-weight: 400;
+    color: var(--mid);
+    margin-bottom: 32px;
+    font-style: italic;
+  }
+
+  .cover-divider {
+    width: 80px;
+    height: 3px;
+    background: var(--gold);
+    margin-bottom: 32px;
+  }
+
+  .cover-desc {
+    font-size: 16px;
+    color: var(--mid);
+    max-width: 560px;
+    line-height: 1.7;
+    margin-bottom: 48px;
+  }
+
+  .cover-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    max-width: 640px;
+    margin-bottom: 56px;
+  }
+
+  .cover-meta-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 12px var(--shadow);
+  }
+
+  .cover-meta-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: 6px;
+  }
+
+  .cover-meta-value {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .cover-meta-value small {
+    font-weight: 400;
+    color: var(--mid);
+    font-size: 12px;
+    display: block;
+    margin-top: 2px;
+  }
+
+  .cover-flows-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    max-width: 720px;
+  }
+
+  .flow-chip {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12px;
+    color: var(--mid);
+    font-weight: 500;
+  }
+
+  /* ── BRIEF SECTION ── */
+  .brief-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    margin-bottom: 40px;
+  }
+
+  .brief-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    box-shadow: 0 2px 16px var(--shadow);
+  }
+
+  .brief-card.full {
+    grid-column: 1 / -1;
+  }
+
+  .brief-card.accent-emerald {
+    background: var(--emerald);
+    color: var(--white);
+    border-color: var(--emerald);
+  }
+
+  .brief-card.accent-emerald .card-label { color: rgba(255,255,255,0.6); }
+  .brief-card.accent-emerald .card-title { color: var(--white); }
+  .brief-card.accent-emerald p { color: rgba(255,255,255,0.85); }
+
+  .card-label {
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--mid);
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 12px;
+    line-height: 1.3;
+  }
+
+  /* ── SECTION HEADER ── */
+  .section-header {
+    margin-bottom: 40px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-end;
+    gap: 24px;
+  }
+
+  .section-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 72px;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--cream);
+    flex-shrink: 0;
+  }
+
+  .section-title-block {}
+
+  .section-eyebrow {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.15;
+  }
+
+  .section-desc {
+    font-size: 15px;
+    color: var(--mid);
+    max-width: 600px;
+    line-height: 1.7;
+    margin-top: 20px;
+  }
+
+  /* ── SUBSECTION ── */
+  .subsection {
+    margin-bottom: 56px;
+  }
+
+  .subsection-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .subsection-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+    max-width: 300px;
+  }
+
+  .subsection-desc {
+    font-size: 14px;
+    color: var(--mid);
+    margin-bottom: 20px;
+    max-width: 700px;
+    line-height: 1.65;
+  }
+
+  /* ── COPY TABLE ── */
+  .copy-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 16px var(--shadow);
+    margin-bottom: 12px;
+    font-size: 13px;
+  }
+
+  .copy-table thead tr th {
+    background: var(--ink);
+    color: var(--paper);
+    padding: 14px 18px;
+    text-align: left;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .copy-table tbody tr:nth-child(even) {
+    background: var(--cream);
+  }
+
+  .copy-table tbody tr:nth-child(odd) {
+    background: var(--white);
+  }
+
+  .copy-table tbody tr:hover {
+    background: var(--sky-light);
+    transition: background 0.15s;
+  }
+
+  .copy-table td {
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+
+  .copy-table tr:last-child td { border-bottom: none; }
+
+  .col-context { font-weight: 600; color: var(--ink); width: 18%; }
+  .col-dont { color: var(--rust); font-style: italic; width: 25%; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+  .col-do { color: var(--emerald); font-weight: 500; width: 30%; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+  .col-why { color: var(--mid); font-size: 12.5px; width: 27%; }
+
+  .dont-tag, .do-tag {
+    display: inline-block;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 700;
+    margin-bottom: 5px;
+    letter-spacing: 0.5px;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .dont-tag { background: var(--rust-light); color: var(--rust); }
+  .do-tag { background: var(--emerald-light); color: var(--emerald); }
+
+  /* ── FLOW DIAGRAM ── */
+  .flow-diagram {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 24px 0;
+    margin-bottom: 16px;
+  }
+
+  .flow-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 140px;
+    position: relative;
+  }
+
+  .flow-step::after {
+    content: '→';
+    position: absolute;
+    right: -12px;
+    top: 30px;
+    font-size: 18px;
+    color: var(--border);
+    font-weight: 300;
+  }
+
+  .flow-step:last-child::after { display: none; }
+
+  .flow-node {
+    width: 88px;
+    height: 88px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin-bottom: 10px;
+    border: 2px solid var(--border);
+    background: var(--white);
+    box-shadow: 0 2px 8px var(--shadow);
+    flex-shrink: 0;
+  }
+
+  .flow-node.start { background: var(--emerald); border-color: var(--emerald); }
+  .flow-node.end { background: var(--gold); border-color: var(--gold); }
+  .flow-node.error { background: var(--rust-light); border-color: var(--rust); }
+  .flow-node.decision { background: var(--purple-light); border-color: var(--purple); border-radius: 50%; }
+
+  .flow-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink);
+    text-align: center;
+    max-width: 110px;
+    line-height: 1.4;
+  }
+
+  .flow-copy {
+    font-size: 10px;
+    color: var(--mid);
+    text-align: center;
+    max-width: 120px;
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 4px;
+    background: var(--cream);
+    padding: 3px 6px;
+    border-radius: 4px;
+    line-height: 1.4;
+  }
+
+  /* ── ONBOARDING FLOW VERTICAL ── */
+  .onboarding-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+    max-width: 720px;
+  }
+
+  .onboarding-flow::before {
+    content: '';
+    position: absolute;
+    left: 39px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--border);
+    z-index: 0;
+  }
+
+  .ob-step {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    margin-bottom: 8px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .ob-num {
+    width: 80px;
+    height: 80px;
+    border-radius: 12px;
+    background: var(--white);
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 900;
+    color: var(--emerald);
+    box-shadow: 0 2px 8px var(--shadow);
+  }
+
+  .ob-content {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    flex: 1;
+    box-shadow: 0 2px 8px var(--shadow);
+    margin-top: 12px;
+  }
+
+  .ob-screen-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .ob-screen-title {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--ink);
+    margin-bottom: 10px;
+  }
+
+  .ob-copy-rows { display: flex; flex-direction: column; gap: 8px; }
+
+  .ob-copy-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    font-size: 12.5px;
+  }
+
+  .ob-copy-type {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--mid);
+    white-space: nowrap;
+    margin-top: 2px;
+    letter-spacing: 0.3px;
+    text-transform: uppercase;
+    flex-shrink: 0;
+  }
+
+  .ob-copy-text {
+    color: var(--ink);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  /* ── VOICE PILLARS ── */
+  .pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-bottom: 32px;
+  }
+
+  .pillar-card {
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .pillar-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px;
+    height: 100%;
+  }
+
+  .pillar-card.emerald { background: var(--emerald-light); }
+  .pillar-card.emerald::before { background: var(--emerald); }
+  .pillar-card.gold { background: #FDF5E0; }
+  .pillar-card.gold::before { background: var(--gold); }
+  .pillar-card.rust { background: var(--rust-light); }
+  .pillar-card.rust::before { background: var(--rust); }
+  .pillar-card.sky { background: var(--sky-light); }
+  .pillar-card.sky::before { background: var(--sky); }
+
+  .pillar-emoji { font-size: 28px; margin-bottom: 12px; }
+  .pillar-name { font-weight: 700; font-size: 16px; color: var(--ink); margin-bottom: 6px; }
+  .pillar-desc { font-size: 13px; color: var(--mid); line-height: 1.6; margin-bottom: 14px; }
+  .pillar-example {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ink);
+    background: rgba(255,255,255,0.6);
+    padding: 10px 14px;
+    border-radius: 8px;
+    border-left: 2px solid currentColor;
+    line-height: 1.5;
+  }
+
+  /* ── CALLOUT ── */
+  .callout {
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    font-size: 13.5px;
+    line-height: 1.6;
+  }
+
+  .callout.tip { background: var(--emerald-light); border: 1px solid rgba(26,107,74,0.2); }
+  .callout.warn { background: #FEF3E2; border: 1px solid rgba(212,116,10,0.2); }
+  .callout.note { background: var(--sky-light); border: 1px solid rgba(26,92,143,0.2); }
+
+  .callout-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .callout-text { color: var(--ink); }
+  .callout-text strong { font-weight: 600; }
+
+  /* ── NOTIFICATION CARDS ── */
+  .notif-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .notif-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 8px var(--shadow);
+  }
+
+  .notif-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .notif-app-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: var(--emerald);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+
+  .notif-app-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .notif-time {
+    font-size: 11px;
+    color: var(--mid);
+    margin-left: auto;
+  }
+
+  .notif-title { font-weight: 700; font-size: 13px; color: var(--ink); margin-bottom: 4px; }
+  .notif-body { font-size: 12.5px; color: var(--mid); line-height: 1.5; }
+
+  /* ── ERROR STATES ── */
+  .error-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .error-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    box-shadow: 0 2px 8px var(--shadow);
+  }
+
+  .error-icon { font-size: 36px; margin-bottom: 12px; }
+  .error-title { font-weight: 700; font-size: 14px; color: var(--ink); margin-bottom: 6px; }
+  .error-msg { font-size: 12.5px; color: var(--mid); line-height: 1.6; margin-bottom: 14px; }
+  .error-cta {
+    background: var(--ink);
+    color: var(--white);
+    border: none;
+    padding: 9px 18px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  /* ── EMPTY STATES ── */
+  .empty-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .empty-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 36px 24px;
+    text-align: center;
+    box-shadow: 0 2px 8px var(--shadow);
+  }
+
+  .empty-illus { font-size: 48px; margin-bottom: 14px; }
+  .empty-title { font-weight: 700; font-size: 16px; color: var(--ink); margin-bottom: 8px; }
+  .empty-desc { font-size: 13px; color: var(--mid); line-height: 1.6; margin-bottom: 18px; }
+  .empty-cta {
+    background: var(--emerald);
+    color: var(--white);
+    border: none;
+    padding: 11px 24px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  /* ── AB TABLE ── */
+  .ab-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 16px var(--shadow);
+    margin-bottom: 12px;
+    font-size: 13px;
+  }
+
+  .ab-table thead tr th {
+    padding: 14px 18px;
+    text-align: left;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .ab-table thead th:first-child { background: var(--ink); color: var(--paper); }
+  .ab-table thead th:nth-child(2) { background: var(--sky); color: var(--white); }
+  .ab-table thead th:nth-child(3) { background: var(--emerald); color: var(--white); }
+
+  .ab-table tbody tr:nth-child(even) { background: var(--cream); }
+  .ab-table tbody tr:nth-child(odd) { background: var(--white); }
+
+  .ab-table td {
+    padding: 13px 18px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+
+  .ab-table td:first-child { font-weight: 600; color: var(--ink); }
+  .ab-table td:nth-child(2) { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--sky); }
+  .ab-table td:nth-child(3) { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--emerald); font-weight: 600; }
+  .ab-table tr:last-child td { border-bottom: none; }
+
+  /* ── VOICE TABLE ── */
+  .voice-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 16px var(--shadow);
+    margin-bottom: 12px;
+    font-size: 13px;
+  }
+
+  .voice-table thead tr th {
+    background: var(--purple);
+    color: var(--white);
+    padding: 14px 18px;
+    text-align: left;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .voice-table tbody tr:nth-child(even) { background: var(--cream); }
+  .voice-table tbody tr:nth-child(odd) { background: var(--white); }
+
+  .voice-table td {
+    padding: 13px 18px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+
+  .voice-table td:first-child { font-weight: 600; color: var(--ink); font-size: 12px; width: 20%; }
+  .voice-table td:nth-child(2) { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--rust); font-style: italic; }
+  .voice-table td:nth-child(3) { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--emerald); font-weight: 500; }
+  .voice-table tr:last-child td { border-bottom: none; }
+
+  /* ── CHECKLIST ── */
+  .checklist { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 14px;
+    color: var(--ink);
+    line-height: 1.5;
+  }
+
+  .check-box {
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: var(--emerald);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .check-box.checked {
+    background: var(--emerald);
+    border-color: var(--emerald);
+    color: var(--white);
+  }
+
+  /* ── TEAM SECTION ── */
+  .team-card {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 28px;
+    box-shadow: 0 2px 16px var(--shadow);
+    max-width: 480px;
+    margin-bottom: 20px;
+  }
+
+  .team-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--emerald), var(--gold));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 900;
+    color: var(--white);
+    flex-shrink: 0;
+  }
+
+  .team-name { font-weight: 700; font-size: 18px; color: var(--ink); }
+  .team-role { font-size: 13px; color: var(--gold); font-weight: 600; margin-bottom: 4px; }
+  .team-desc { font-size: 12.5px; color: var(--mid); line-height: 1.5; }
+
+  /* ── WORDS TABLE ── */
+  .words-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .words-col {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px var(--shadow);
+  }
+
+  .words-col-header {
+    padding: 14px 18px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .words-col-header.avoid { background: var(--rust-light); color: var(--rust); }
+  .words-col-header.use { background: var(--emerald-light); color: var(--emerald); }
+
+  .words-col-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 18px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .words-col-item:last-child { border-bottom: none; }
+  .word-main { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; color: var(--ink); flex: 1; }
+  .word-reason { font-size: 11.5px; color: var(--mid); }
+  .word-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .word-dot.avoid { background: var(--rust); }
+  .word-dot.use { background: var(--emerald); }
+
+  /* ── RESPONSIVE / SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--mid); }
+
+  /* ── BACK TO TOP ── */
+  .progress-bar {
+    position: fixed;
+    top: 0; left: 280px; right: 0;
+    height: 3px;
+    background: var(--gold);
+    transform-origin: left;
+    z-index: 200;
+    transform: scaleX(0);
+    transition: transform 0.1s;
+  }
+
+  /* ── APP MOCKUP ── */
+  .mockup-row {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    padding: 8px 0 20px;
+  }
+
+  .phone-mockup {
+    width: 200px;
+    flex-shrink: 0;
+    border-radius: 28px;
+    border: 2px solid var(--border);
+    overflow: hidden;
+    box-shadow: 0 8px 32px var(--shadow), inset 0 1px 0 rgba(255,255,255,0.5);
+    background: var(--white);
+  }
+
+  .phone-status {
+    background: var(--emerald);
+    color: var(--white);
+    font-size: 9px;
+    padding: 8px 14px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .phone-screen { padding: 14px; min-height: 280px; }
+  .phone-nav {
+    background: var(--paper);
+    border-top: 1px solid var(--border);
+    padding: 10px;
+    display: flex;
+    justify-content: space-around;
+    font-size: 18px;
+  }
+
+  .phone-heading {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+
+  .phone-sub {
+    font-size: 11px;
+    color: var(--mid);
+    margin-bottom: 12px;
+  }
+
+  .phone-balance {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 900;
+    color: var(--emerald);
+    margin-bottom: 3px;
+  }
+
+  .phone-bal-label {
+    font-size: 10px;
+    color: var(--mid);
+    margin-bottom: 12px;
+  }
+
+  .phone-pill {
+    background: var(--emerald-light);
+    color: var(--emerald);
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 4px 10px;
+    display: inline-block;
+    margin-bottom: 12px;
+  }
+
+  .phone-btn {
+    background: var(--emerald);
+    color: var(--white);
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 9px;
+    text-align: center;
+    margin-bottom: 8px;
+    width: 100%;
+  }
+
+  .phone-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--mid);
+    border-bottom: 1px solid var(--border);
+    padding: 6px 0;
+  }
+
+  .phone-row strong { color: var(--ink); font-size: 11px; }
+
+  .phone-label { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--gold); font-weight: 700; margin-bottom: 6px; }
+
+  .phone-input-mock {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 11px;
+    color: var(--mid);
+    margin-bottom: 8px;
+    width: 100%;
+  }
+
+  .phone-input-mock.focused {
+    border-color: var(--emerald);
+    background: var(--white);
+    color: var(--ink);
+  }
+
+  .phone-error-msg {
+    font-size: 10px;
+    color: var(--rust);
+    margin-top: -4px;
+    margin-bottom: 6px;
+  }
+
+  .phone-tag {
+    font-size: 9px;
+    border-radius: 4px;
+    padding: 2px 6px;
+    font-weight: 600;
+  }
+
+  .phone-tag.green { background: var(--emerald-light); color: var(--emerald); }
+  .phone-tag.red { background: var(--rust-light); color: var(--rust); }
+
+  /* ── PROJECT BRIEF VISUAL ── */
+  .brief-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+    margin: 20px 0;
+  }
+
+  .brief-tl-item {
+    display: flex;
+    gap: 20px;
+    padding-bottom: 24px;
+    position: relative;
+  }
+
+  .brief-tl-item::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 30px;
+    bottom: 0;
+    width: 2px;
+    background: var(--border);
+  }
+
+  .brief-tl-item:last-child::before { display: none; }
+
+  .brief-tl-dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--emerald);
+    color: var(--white);
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    z-index: 1;
+  }
+
+  .brief-tl-content {}
+  .brief-tl-label { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); font-weight: 600; margin-bottom: 3px; }
+  .brief-tl-title { font-weight: 700; font-size: 15px; color: var(--ink); margin-bottom: 4px; }
+  .brief-tl-desc { font-size: 13px; color: var(--mid); line-height: 1.6; }
+
+  /* HEADER */
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 40px;
+  }
+
+  .page-tag {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12px;
+    color: var(--mid);
+    font-weight: 500;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-wordmark">Pesa</div>
+    <div class="brand-sub">UX Writing Catalog</div>
+  </div>
+  <div class="sidebar-meta">
+    <div class="meta-row"><div class="meta-dot"></div> <span>Writer: <strong>Maha Noor</strong></span></div>
+    <div class="meta-row"><div class="meta-dot"></div> <span>Product: <strong>Pesa for Students</strong></span></div>
+    <div class="meta-row"><div class="meta-dot"></div> <span>Market: <strong>Sub-Saharan Africa</strong></span></div>
+    <div class="meta-row"><div class="meta-dot"></div> <span>Year: <strong>2025</strong></span></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Overview</div>
+    <a class="nav-item active" onclick="showSection('cover')">
+      <span class="nav-icon">✦</span> Cover Page
+    </a>
+    <a class="nav-item" onclick="showSection('brief')">
+      <span class="nav-icon">📋</span> Project Brief
+    </a>
+    <a class="nav-item" onclick="showSection('voice')">
+      <span class="nav-icon">🎙️</span> Voice & Tone
+    </a>
+
+    <div class="nav-section-label">Core Flows</div>
+    <a class="nav-item" onclick="showSection('onboarding')">
+      <span class="nav-icon">🌱</span> Onboarding <span class="nav-badge">12</span>
+    </a>
+    <a class="nav-item" onclick="showSection('dashboard')">
+      <span class="nav-icon">📊</span> Dashboard <span class="nav-badge">8</span>
+    </a>
+    <a class="nav-item" onclick="showSection('budgets')">
+      <span class="nav-icon">💰</span> Budgets <span class="nav-badge">10</span>
+    </a>
+    <a class="nav-item" onclick="showSection('expenses')">
+      <span class="nav-icon">🧾</span> Expenses <span class="nav-badge">9</span>
+    </a>
+    <a class="nav-item" onclick="showSection('goals')">
+      <span class="nav-icon">🎯</span> Savings Goals <span class="nav-badge">8</span>
+    </a>
+    <a class="nav-item" onclick="showSection('splits')">
+      <span class="nav-icon">🤝</span> Group Splits <span class="nav-badge">7</span>
+    </a>
+
+    <div class="nav-section-label">System States</div>
+    <a class="nav-item" onclick="showSection('errors')">
+      <span class="nav-icon">⚠️</span> Errors & Alerts <span class="nav-badge">11</span>
+    </a>
+    <a class="nav-item" onclick="showSection('empty')">
+      <span class="nav-icon">🫙</span> Empty States <span class="nav-badge">6</span>
+    </a>
+    <a class="nav-item" onclick="showSection('notifications')">
+      <span class="nav-icon">🔔</span> Notifications <span class="nav-badge">9</span>
+    </a>
+
+    <div class="nav-section-label">Reference</div>
+    <a class="nav-item" onclick="showSection('ab')">
+      <span class="nav-icon">🧪</span> A/B Tests <span class="nav-badge">5</span>
+    </a>
+    <a class="nav-item" onclick="showSection('checklist')">
+      <span class="nav-icon">✅</span> Writer's Checklist
+    </a>
+  </nav>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- COVER -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="section active" id="sec-cover">
+    <div class="cover">
+      <div class="cover-bg-pattern"></div>
+      <div class="cover-eyebrow">UX Writing Catalog · 2025</div>
+      <div class="cover-title">Pesa<br><em>for Students</em></div>
+      <div class="cover-subtitle">A Budgeting App Built for Africa</div>
+      <div class="cover-divider"></div>
+      <p class="cover-desc">A complete UX writing system for a mobile budgeting app designed for university students across Sub-Saharan Africa. Every word in this catalog was written to be accessible, culturally resonant, and financially empowering.</p>
+
+      <div class="cover-meta-grid">
+        <div class="cover-meta-card">
+          <div class="cover-meta-label">UX Writer</div>
+          <div class="cover-meta-value">Maha Noor <small>Lead UX Writer</small></div>
+        </div>
+        <div class="cover-meta-card">
+          <div class="cover-meta-label">Product</div>
+          <div class="cover-meta-value">Pesa v1.0 <small>Mobile — iOS & Android</small></div>
+        </div>
+        <div class="cover-meta-card">
+          <div class="cover-meta-label">Flows Covered</div>
+          <div class="cover-meta-value">9 Flows <small>80+ copy elements</small></div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:14px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--mid);font-weight:600;">Flows Covered in this Catalog</div>
+      <div class="cover-flows-grid">
+        <span class="flow-chip">🌱 Onboarding</span>
+        <span class="flow-chip">📊 Dashboard</span>
+        <span class="flow-chip">💰 Budget Creation</span>
+        <span class="flow-chip">🧾 Expense Logging</span>
+        <span class="flow-chip">🎯 Savings Goals</span>
+        <span class="flow-chip">🤝 Group Splits</span>
+        <span class="flow-chip">⚠️ Error States</span>
+        <span class="flow-chip">🫙 Empty States</span>
+        <span class="flow-chip">🔔 Notifications</span>
+        <span class="flow-chip">🎙️ Voice & Tone</span>
+        <span class="flow-chip">🧪 A/B Testing</span>
+        <span class="flow-chip">✅ Writer's Checklist</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- PROJECT BRIEF -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="section" id="sec-brief">
+    <div class="section-header">
+      <div class="section-number">00</div>
+      <div class="section-title-block">
+        <div class="section-eyebrow">Foundation</div>
+        <div class="section-title">Project Brief</div>
+      </div>
+    </div>
+
+    <div class="brief-grid">
+      <div class="brief-card accent-emerald">
+        <div class="card-label">The Problem</div>
+        <div class="card-title">Students in Africa are earning, spending, and losing money without a system.</div>
+        <p style="font-size:14px;line-height:1.7;margin-top:8px;">University students across Sub-Saharan Africa receive stipends, allowances, MPESA transfers, and part-time income — often all at once. With no structured way to track spending, most run out of money before the month ends.</p>
+      </div>
+      <div class="brief-card">
+        <div class="card-label">The Solution</div>
+        <div class="card-title">Pesa — A budgeting companion that speaks student.</div>
+        <p style="font-size:14px;color:var(--mid);line-height:1.7;margin-top:8px;">Pesa is a lightweight mobile app that helps students set budgets, log daily expenses, split costs with roommates, and build small savings goals — all in under 30 seconds per interaction. No banking jargon. No shame. Just clarity.</p>
+      </div>
+      <div class="brief-card full">
+        <div class="card-label">Target Users</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:12px;">
+          <div>
+            <div style="font-size:28px;margin-bottom:8px;">👩🏾‍🎓</div>
+            <div style="font-weight:700;font-size:14px;color:var(--ink);margin-bottom:4px;">Amara, 20</div>
+            <div style="font-size:12.5px;color:var(--mid);line-height:1.6;">University of Ghana, Accra. Receives a monthly allowance from parents via MPESA. Shares rent with 3 roommates. First time managing her own finances.</div>
+          </div>
+          <div>
+            <div style="font-size:28px;margin-bottom:8px;">👨🏿‍💻</div>
+            <div style="font-weight:700;font-size:14px;color:var(--ink);margin-bottom:4px;">Tunde, 22</div>
+            <div style="font-size:12.5px;color:var(--mid);line-height:1.6;">University of Lagos. Freelances for pocket money. Gets paid irregularly. Wants to save for a new laptop but always finds the money gone by month-end.</div>
+          </div>
+          <div>
+            <div style="font-size:28px;margin-bottom:8px;">👩🏽‍🏫</div>
+            <div style="font-weight:700;font-size:14px;color:var(--ink);margin-bottom:4px;">Zawadi, 21</div>
+            <div style="font-size:12.5px;color:var(--mid);line-height:1.6;">Strathmore University, Nairobi. Has a part-time job. Confident with money but needs a system to track where it goes. Budget-conscious but not a spreadsheet person.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Product Goals</div>
+      <div class="brief-timeline">
+        <div class="brief-tl-item">
+          <div class="brief-tl-dot">1</div>
+          <div class="brief-tl-content">
+            <div class="brief-tl-label">Core Goal</div>
+            <div class="brief-tl-title">Help students finish the month with money to spare</div>
+            <div class="brief-tl-desc">Pesa's #1 job is to make budget remaining visible at a glance — not buried in graphs. Users should know in under 3 seconds how much they have left this week.</div>
+          </div>
+        </div>
+        <div class="brief-tl-item">
+          <div class="brief-tl-dot">2</div>
+          <div class="brief-tl-content">
+            <div class="brief-tl-label">Engagement Goal</div>
+            <div class="brief-tl-title">Build a daily logging habit in 14 days</div>
+            <div class="brief-tl-desc">Research shows that users who log expenses for 14 consecutive days stay with a budgeting app. Every notification, nudge, and celebration is written to reinforce this loop.</div>
+          </div>
+        </div>
+        <div class="brief-tl-item">
+          <div class="brief-tl-dot">3</div>
+          <div class="brief-tl-content">
+            <div class="brief-tl-label">Cultural Goal</div>
+            <div class="brief-tl-title">Feel African, not translated</div>
+            <div class="brief-tl-desc">Copy references local realities: MPESA transfers, "sending money home," eating out vs. cooking in the hostel. No Silicon Valley assumptions.</div>
+          </div>
+        </div>
+        <div class="brief-tl-item">
+          <div class="brief-tl-dot">4</div>
+          <div class="brief-tl-content">
+            <div class="brief-tl-label">Trust Goal</div>
+            <div class="brief-tl-title">Never make users feel judged for their spending</div>
+            <div class="brief-tl-desc">Budget overruns are framed as information, not failure. The app is a non-judgmental advisor — firm when needed, always supportive.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Team</div>
+      <div class="team-card">
+        <div class="team-avatar">M</div>
+        <div>
+          <div class="team-role">Lead UX Writer</div>
+          <div class="team-name">Maha Noor</div>
+          <div class="team-desc">Responsible for all product copy, tone and voice guidelines, microcopy systems, onboarding flows, error states, and notification strategy across iOS and Android.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- VOICE & TONE -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="section" id="sec-voice">
+    <div class="section-header">
+      <div class="section-number">01</div>
+      <div class="section-title-block">
+        <div class="section-eyebrow">Brand Foundation</div>
+        <div class="section-title">Voice & Tone</div>
+      </div>
+    </div>
+    <p class="section-desc">Pesa's voice is a financially-savvy older sibling — warm, direct, never condescending. It doesn't lecture. It gives you the truth with a little warmth on top.</p>
+
+    <div class="subsection">
+      <div class="subsection-title">Voice Pillars</div>
+      <div class="pillars-grid">
+        <div class="pillar-card emerald">
+          <div class="pillar-emoji">🌱</div>
+          <div class="pillar-name">Real, Not Corporate</div>
+          <div class="pillar-desc">We write like a smart friend, not a bank. Short sentences. Plain words. No jargon students have to Google.</div>
+          <div class="pillar-example">"You've got KES 1,200 left this week.<br>That's ₦1,200 more than last week — nice."</div>
+        </div>
+        <div class="pillar-card gold">
+          <div class="pillar-emoji">🎯</div>
+          <div class="pillar-name">Direct, Not Blunt</div>
+          <div class="pillar-desc">We say what needs to be said. We don't bury the lead or pad with pleasantries. But we always soften facts with warmth.</div>
+          <div class="pillar-example">"You've spent 80% of your food budget<br>with 12 days to go. Time to cook more?"</div>
+        </div>
+        <div class="pillar-card rust">
+          <div class="pillar-emoji">🤝</div>
+          <div class="pillar-name">Empowering, Not Shaming</div>
+          <div class="pillar-desc">We never make users feel bad about how they spend. We frame overspending as information, not failure.</div>
+          <div class="pillar-example">"Rent went over budget this month.<br>Let's plan better for next month."</div>
+        </div>
+        <div class="pillar-card sky">
+          <div class="pillar-emoji">✨</div>
+          <div class="pillar-name">Celebratory, Not Excessive</div>
+          <div class="pillar-desc">We celebrate wins — but we match the energy. A small win gets a quiet nod. A big goal gets a proper cheer.</div>
+          <div class="pillar-example">"Goal reached. Your ₦30,000 laptop<br>fund is full. Go get it. 🎉"</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Tone Adaptation by Context</div>
+      <div class="subsection-desc">The voice stays the same. The tone shifts based on what the user is feeling in that moment.</div>
+      <table class="voice-table">
+        <thead><tr>
+          <th>Moment</th><th>🚫 Too Formal / Cold</th><th>✅ Pesa Voice</th>
+        </tr></thead>
+        <tbody>
+          <tr><td>Budget created</td><td>"Budget has been successfully created."</td><td>"Budget set. Let's see how this month goes."</td></tr>
+          <tr><td>Over budget</td><td>"Expenditure has exceeded allocated budget."</td><td>"You've gone over on food by ₦800. Here's what you've spent."</td></tr>
+          <tr><td>Savings goal reached</td><td>"Savings target achieved."</td><td>"You saved ₦15,000. That's actually impressive. 🎉"</td></tr>
+          <tr><td>Expense logged</td><td>"Transaction recorded successfully."</td><td>"Logged. ₦400 from food budget."</td></tr>
+          <tr><td>Streak broken</td><td>"Logging streak has ended."</td><td>"Streak broken — no biggie. Log something today and start fresh."</td></tr>
+          <tr><td>Low balance warning</td><td>"Funds are running low in your budget category."</td><td>"Heads up: you've got ₦300 left in transport this week."</td></tr>
+          <tr><td>App error</td><td>"An error has occurred. Please try again."</td><td>"Something went wrong on our end. Give it a moment and try again."</td></tr>
+          <tr><td>New user welcome</td><td>"Welcome to Pesa. Please complete setup."</td><td>"Hey! Let's set up your first budget. Takes 2 minutes."</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Words to Use & Avoid</div>
+      <div class="words-grid">
+        <div class="words-col">
+          <div class="words-col-header avoid">❌ Avoid These</div>
+          <div class="words-col-item"><div class="word-dot avoid"></div><div><div class="word-main">Expenditure</div><div class="word-reason">→ Use "spending"</div></div></div>
+          <div class="words-col-item"><div class="word-dot avoid"></div><div><div class="word-main">Insufficient funds</div><div class="word-reason">→ Use "not enough in your budget"</div></div></div>
+          <div class="words-col-item"><div class="word-dot avoid"></div><div><div class="word-main">Transaction</div><div class="word-reason">→ Use "expense" or "purchase"</div></div></div>
+          <div class="words-col-item"><div class="word-dot avoid"></div><div><div class="word-main">Utilize</div><div class="word-reason">→ Use "use"</div></div></div>
+          <div class="words-col-item"><div class="word-dot avoid"></div><div><div class="word-main">Allocated</div><div class="word-reason">→ Use "set aside" or "budgeted"</div></div></div>
+          <div class="words-col-item"><div class="word-dot avoid"></div><div><div class="word-main">Delinquent</div><div class="word-reason">→ Use "overdue" or "past the date"</div></div></div>
+        </div>
+        <div class="words-col">
+          <div class="words-col-header use">✅ Use These</div>
+          <div class="words-col-item"><div class="word-dot use"></div><div><div class="word-main">Left / Remaining</div><div class="word-reason">Answers "how much can I spend?"</div></div></div>
+          <div class="words-col-item"><div class="word-dot use"></div><div><div class="word-main">Log / Logged</div><div class="word-reason">Action-oriented; short and clear</div></div></div>
+          <div class="words-col-item"><div class="word-dot use"></div><div><div class="word-main">Heads up</div><div class="word-reason">Friendly warning, non-alarming</div></div></div>
+          <div class="words-col-item"><div class="word-dot use"></div><div><div class="word-main">Let's / You've</div><div class="word-reason">Conversational contractions welcome</div></div></div>
+          <div class="words-col-item"><div class="word-dot use"></div><div><div class="word-main">This month / This week</div><div class="word-reason">Time-bound language creates urgency</div></div></div>
+          <div class="words-col-item"><div class="word-dot use"></div><div><div class="word-main">Saved / Spent</div><div class="word-reason">Past tense feels concrete, real</div></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- ONBOARDING -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="section" id="sec-onboarding">
+    <div class="section-header">
+      <div class="section-number">02</div>
+      <div class="section-title-block">
+        <div class="section-eyebrow">Core Flow</div>
+        <div class="section-title">Onboarding</div>
+      </div>
+    </div>
+    <p class="section-desc">The onboarding flow sets the entire relationship. Every screen must reduce friction, build trust, and deliver value before asking for effort. The goal: first budget created within 3 minutes of download.</p>
+
+    <div class="subsection">
+      <div class="subsection-title">Flow Diagram</div>
+      <div class="flow-diagram">
+        <div class="flow-step">
+          <div class="flow-node start">📲</div>
+          <div class="flow-label">Splash / Welcome</div>
+          <div class="flow-copy">"Take control of your money"</div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-node">👤</div>
+          <div class="flow-label">Sign Up</div>
+          <div class="flow-copy">Name + phone number</div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-node">🔐</div>
+          <div class="flow-label">Verify OTP</div>
+          <div class="flow-copy">"Enter the 6-digit code"</div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-node">🎓</div>
+          <div class="flow-label">Student Profile</div>
+          <div class="flow-copy">University + city</div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-node">💵</div>
+          <div class="flow-label">Monthly Income</div>
+          <div class="flow-copy">"What comes in?"</div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-node">🗂️</div>
+          <div class="flow-label">Budget Setup</div>
+          <div class="flow-copy">Set category budgets</div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-node end">🎉</div>
+          <div class="flow-label">All Set!</div>
+          <div class="flow-copy">"Your first budget is live"</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Screen-by-Screen Copy</div>
+      <div class="onboarding-flow">
+
+        <div class="ob-step">
+          <div class="ob-num">1</div>
+          <div class="ob-content">
+            <div class="ob-screen-label">Welcome Screen</div>
+            <div class="ob-screen-title">Splash / Hero</div>
+            <div class="ob-copy-rows">
+              <div class="ob-copy-row"><span class="ob-copy-type">Headline</span><span class="ob-copy-text">Your money. Your month. Your rules.</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Subhead</span><span class="ob-copy-text">Pesa helps you budget, track, and save — built for students in Africa.</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">CTA</span><span class="ob-copy-text">Get started — it's free</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Link</span><span class="ob-copy-text">Already have an account? Sign in</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ob-step">
+          <div class="ob-num">2</div>
+          <div class="ob-content">
+            <div class="ob-screen-label">Account Creation</div>
+            <div class="ob-screen-title">Sign Up Screen</div>
+            <div class="ob-copy-rows">
+              <div class="ob-copy-row"><span class="ob-copy-type">Headline</span><span class="ob-copy-text">Let's set you up</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Subhead</span><span class="ob-copy-text">No bank account needed. Just your phone number.</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Field: Name</span><span class="ob-copy-text">What do your friends call you?</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Field: Phone</span><span class="ob-copy-text">Your phone number (we'll send a code)</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Helper</span><span class="ob-copy-text">We won't spam you. The code is for sign-in only.</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">CTA</span><span class="ob-copy-text">Send my code</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Legal</span><span class="ob-copy-text">By continuing, you agree to our Terms and Privacy Policy.</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ob-step">
+          <div class="ob-num">3</div>
+          <div class="ob-content">
+            <div class="ob-screen-label">Verification</div>
+            <div class="ob-screen-title">OTP Screen</div>
+            <div class="ob-copy-rows">
+              <div class="ob-copy-row"><span class="ob-copy-type">Headline</span><span class="ob-copy-text">Check your messages</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Subhead</span><span class="ob-copy-text">We sent a 6-digit code to +234 ··· 9821. Enter it below.</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Timer</span><span class="ob-copy-text">Code expires in 4:59</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Resend</span><span class="ob-copy-text">Didn't get it? Resend code</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Error</span><span class="ob-copy-text">That code doesn't match. Try again — or request a new one.</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Expired</span><span class="ob-copy-text">Code expired. Request a new one below.</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ob-step">
+          <div class="ob-num">4</div>
+          <div class="ob-content">
+            <div class="ob-screen-label">Profile Setup</div>
+            <div class="ob-screen-title">Student Info</div>
+            <div class="ob-copy-rows">
+              <div class="ob-copy-row"><span class="ob-copy-type">Headline</span><span class="ob-copy-text">Tell us a bit about yourself</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Subhead</span><span class="ob-copy-text">This helps us give you budget templates that actually make sense for your life.</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Field</span><span class="ob-copy-text">Your university or college</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Field</span><span class="ob-copy-text">Your city</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Field</span><span class="ob-copy-text">Year of study (helps with budget timing)</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Skip</span><span class="ob-copy-text">Skip for now — you can add this later</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ob-step">
+          <div class="ob-num">5</div>
+          <div class="ob-content">
+            <div class="ob-screen-label">Income Setup</div>
+            <div class="ob-screen-title">Monthly Money In</div>
+            <div class="ob-copy-rows">
+              <div class="ob-copy-row"><span class="ob-copy-type">Headline</span><span class="ob-copy-text">What comes in each month?</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Subhead</span><span class="ob-copy-text">Include allowances, part-time pay, MPESA from home — all of it. You can edit this anytime.</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Field</span><span class="ob-copy-text">Monthly amount (approx. is fine)</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Helper</span><span class="ob-copy-text">Irregular income? Enter what you typically get. You can adjust as you go.</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Skip</span><span class="ob-copy-text">I'll add this later</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ob-step">
+          <div class="ob-num">6</div>
+          <div class="ob-content">
+            <div class="ob-screen-label">Budget Creation</div>
+            <div class="ob-screen-title">Set Your Budget Categories</div>
+            <div class="ob-copy-rows">
+              <div class="ob-copy-row"><span class="ob-copy-type">Headline</span><span class="ob-copy-text">Where does your money go?</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Subhead</span><span class="ob-copy-text">We've suggested amounts based on your income. Adjust anything that doesn't fit your life.</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Helper</span><span class="ob-copy-text">Unspent budget rolls over to next month by default.</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Total check</span><span class="ob-copy-text">₦2,000 unallocated. Want to add it somewhere, or save it?</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Over-limit</span><span class="ob-copy-text">You've allocated more than you earn. Reduce one category to balance.</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">CTA</span><span class="ob-copy-text">This looks good — let's go</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ob-step">
+          <div class="ob-num">7</div>
+          <div class="ob-content">
+            <div class="ob-screen-label">Completion</div>
+            <div class="ob-screen-title">You're All Set</div>
+            <div class="ob-copy-rows">
+              <div class="ob-copy-row"><span class="ob-copy-type">Headline</span><span class="ob-copy-text">Your first budget is live, [Name].</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Subhead</span><span class="ob-copy-text">Log your first expense to see Pesa in action. Takes 10 seconds.</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">CTA</span><span class="ob-copy-text">Log my first expense</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Skip</span><span class="ob-copy-text">Take me to my dashboard</span></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Onboarding Microcopy Comparisons</div>
+      <table class="copy-table">
+        <thead><tr>
+          <th>Context</th><th>❌ Don't Write</th><th>✅ Write Instead</th><th>📌 Rationale</th>
+        </tr></thead>
+        <tbody>
+          <tr><td class="col-context">Welcome CTA</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Get Started</td><td class="col-do"><div class="do-tag">USE</div><br>Get started — it's free</td><td class="col-why">Removes price anxiety before users even think to ask</td></tr>
+          <tr><td class="col-context">Name field label</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Full Legal Name</td><td class="col-do"><div class="do-tag">USE</div><br>What do your friends call you?</td><td class="col-why">Warm, human; student apps don't need formal names</td></tr>
+          <tr><td class="col-context">Income field</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Monthly Gross Income</td><td class="col-do"><div class="do-tag">USE</div><br>What comes in each month?</td><td class="col-why">"Gross income" is jargon; the question is conversational</td></tr>
+          <tr><td class="col-context">Progress indicator</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Step 3 of 7</td><td class="col-do"><div class="do-tag">USE</div><br>Almost there — 2 more steps</td><td class="col-why">Reduces remaining effort in the user's mind</td></tr>
+          <tr><td class="col-context">Completion screen</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Setup Complete</td><td class="col-do"><div class="do-tag">USE</div><br>Your first budget is live, [Name].</td><td class="col-why">Personalized; announces the benefit, not the task completion</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- DASHBOARD -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="section" id="sec-dashboard">
+    <div class="section-header">
+      <div class="section-number">03</div>
+      <div class="section-title-block">
+        <div class="section-eyebrow">Core Flow</div>
+        <div class="section-title">Dashboard</div>
+      </div>
+    </div>
+    <p class="section-desc">The dashboard is where users spend 80% of their time. Every label must answer one question instantly: "Am I okay this month?" Labels should be scannable in 3 seconds.</p>
+
+    <div class="subsection">
+      <div class="subsection-title">UI Mockups</div>
+      <div class="mockup-row">
+        <div class="phone-mockup">
+          <div class="phone-status"><span>9:41</span><span>📶 🔋</span></div>
+          <div class="phone-screen">
+            <div class="phone-label">Good morning</div>
+            <div class="phone-heading">Hey, Amara 👋</div>
+            <div class="phone-sub">Here's where you stand today</div>
+            <div class="phone-balance">₦12,400</div>
+            <div class="phone-bal-label">Left to spend this month</div>
+            <div class="phone-pill">↑ 8% vs last month</div>
+            <div class="phone-row"><span>🍔 Food</span><span><strong>₦3,200</strong> left</span></div>
+            <div class="phone-row"><span>🚌 Transport</span><span><strong>₦800</strong> left</span></div>
+            <div class="phone-row"><span>📚 School</span><span><strong>₦2,100</strong> left</span></div>
+            <div class="phone-row"><span>🎮 Fun</span><span style="color:var(--rust)"><strong>₦0</strong> — over!</span></div>
+          </div>
+          <div class="phone-nav">🏠 📊 ➕ 🎯 👤</div>
+        </div>
+        <div class="phone-mockup">
+          <div class="phone-status"><span>9:41</span><span>📶 🔋</span></div>
+          <div class="phone-screen">
+            <div class="phone-label">This week</div>
+            <div class="phone-heading">Week summary</div>
+            <div class="phone-sub">Mon 3 – Sun 9 June</div>
+            <div style="font-size:11px;color:var(--mid);margin-bottom:4px;">Spent this week</div>
+            <div class="phone-balance" style="font-size:22px;margin-bottom:2px;">₦4,850</div>
+            <div class="phone-pill" style="background:var(--rust-light);color:var(--rust);">↑ ₦720 more than last week</div>
+            <div style="margin-top:12px;">
+              <div class="phone-row"><span>Mon</span><span><strong>₦1,200</strong></span></div>
+              <div class="phone-row"><span>Tue</span><span><strong>₦300</strong></span></div>
+              <div class="phone-row"><span>Wed</span><span><strong>₦1,850</strong></span></div>
+              <div class="phone-row"><span>Thu</span><span><strong>₦900</strong></span></div>
+              <div class="phone-row"><span>Fri</span><span><strong>₦600</strong></span></div>
+            </div>
+          </div>
+          <div class="phone-nav">🏠 📊 ➕ 🎯 👤</div>
+        </div>
+        <div class="phone-mockup">
+          <div class="phone-status"><span>9:41</span><span>📶 🔋</span></div>
+          <div class="phone-screen">
+            <div class="phone-label">Quick log</div>
+            <div class="phone-heading">What did you spend on?</div>
+            <div class="phone-sub">Tap a category or type below</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:10px 0;">
+              <div style="background:var(--emerald-light);border-radius:8px;padding:8px;text-align:center;font-size:11px;font-weight:700;color:var(--emerald);">🍔 Food</div>
+              <div style="background:var(--cream);border-radius:8px;padding:8px;text-align:center;font-size:11px;font-weight:700;color:var(--mid);">🚌 Transport</div>
+              <div style="background:var(--cream);border-radius:8px;padding:8px;text-align:center;font-size:11px;font-weight:700;color:var(--mid);">📚 School</div>
+              <div style="background:var(--cream);border-radius:8px;padding:8px;text-align:center;font-size:11px;font-weight:700;color:var(--mid);">💊 Health</div>
+            </div>
+            <div class="phone-input-mock focused">₦ Enter amount</div>
+            <div class="phone-input-mock">Add a note (optional)</div>
+            <div class="phone-btn">Log this expense</div>
+          </div>
+          <div class="phone-nav">🏠 📊 ➕ 🎯 👤</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Dashboard Microcopy</div>
+      <table class="copy-table">
+        <thead><tr><th>Context</th><th>❌ Don't Write</th><th>✅ Write Instead</th><th>📌 Rationale</th></tr></thead>
+        <tbody>
+          <tr><td class="col-context">Main balance label</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Total Available Budget</td><td class="col-do"><div class="do-tag">USE</div><br>Left to spend this month</td><td class="col-why">Answers the real question: "can I spend?"</td></tr>
+          <tr><td class="col-context">Greeting headline</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Welcome back, User</td><td class="col-do"><div class="do-tag">USE</div><br>Hey, [Name] 👋</td><td class="col-why">First name + emoji = warm, immediate recognition</td></tr>
+          <tr><td class="col-context">Category: over budget</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>₦0 / Over limit</td><td class="col-do"><div class="do-tag">USE</div><br>₦0 — you've gone over</td><td class="col-why">States fact without blaming; no red flags of shame</td></tr>
+          <tr><td class="col-context">Week comparison</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>+₦720 WoW delta</td><td class="col-do"><div class="do-tag">USE</div><br>₦720 more than last week</td><td class="col-why">Plain language; "WoW delta" is analytics jargon</td></tr>
+          <tr><td class="col-context">Positive trend</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Budget efficiency: 72%</td><td class="col-do"><div class="do-tag">USE</div><br>↑ 8% better than last month</td><td class="col-why">Relative comparison feels meaningful vs. abstract %</td></tr>
+          <tr><td class="col-context">No spending today</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>No transactions recorded today</td><td class="col-do"><div class="do-tag">USE</div><br>Nothing logged today. Quiet day?</td><td class="col-why">Conversational; gently nudges logging without lecturing</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- BUDGETS -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="section" id="sec-budgets">
+    <div class="section-header">
+      <div class="section-number">04</div>
+      <div class="section-title-block">
+        <div class="section-eyebrow">Core Flow</div>
+        <div class="section-title">Budget Creation & Management</div>
+      </div>
+    </div>
+    <p class="section-desc">Budget screens need to make math feel simple and personal. The categories must feel familiar to an African student's actual life — not copied from Western personal finance apps.</p>
+
+    <div class="subsection">
+      <div class="subsection-title">Flow Diagram — Create a Budget</div>
+      <div class="flow-diagram">
+        <div class="flow-step">
+          <div class="flow-node">➕</div>
+          <div class="flow-label">Tap "New Budget"</div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-node">🗂️</div>
+          <div class="flow-label">Choose Categories</div>
+          <div class="flow-copy">"What do you spend on?"</div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-node">💵</div>
+          <div class="flow-label">Set Amounts</div>
+          <div class="flow-copy">Per category limits</div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-node decision">⚖️</div>
+          <div class="flow-label">Balance Check</div>
+          <div class="flow-copy">Over / Under income?</div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-node end">✅</div>
+          <div class="flow-label">Budget Active</div>
+          <div class="flow-copy">"Budget set. Let's go."</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Budget Categories — Copy</div>
+      <div class="callout tip"><div class="callout-icon">💡</div><div class="callout-text">Category names should reflect what students in Africa actually spend on. <strong>Avoid American defaults</strong> like "401k contributions" or "car payment." Include: transport (okada, trotro, matatu), airtime, sending money home.</div></div>
+      <table class="copy-table">
+        <thead><tr><th>Category</th><th>❌ Generic Label</th><th>✅ Pesa Label</th><th>📌 Why It Works</th></tr></thead>
+        <tbody>
+          <tr><td class="col-context">Food</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Groceries & Dining</td><td class="col-do"><div class="do-tag">USE</div><br>Food & Eating Out</td><td class="col-why">Most students eat at canteens/bukas, not grocery stores</td></tr>
+          <tr><td class="col-context">Transport</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Automotive</td><td class="col-do"><div class="do-tag">USE</div><br>Transport (bus, okada, trotro)</td><td class="col-why">Named after actual modes students use</td></tr>
+          <tr><td class="col-context">Phone</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Communications</td><td class="col-do"><div class="do-tag">USE</div><br>Airtime & Data</td><td class="col-why">These are distinct costs students track separately</td></tr>
+          <tr><td class="col-context">Remittances</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Family Expenses</td><td class="col-do"><div class="do-tag">USE</div><br>Sending money home</td><td class="col-why">Culturally specific; normalized, not framed as burden</td></tr>
+          <tr><td class="col-context">Fun</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Entertainment & Recreation</td><td class="col-do"><div class="do-tag">USE</div><br>Fun money</td><td class="col-why">Permission-giving label; removes guilt from leisure</td></tr>
+          <tr><td class="col-context">Unexpected</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Miscellaneous</td><td class="col-do"><div class="do-tag">USE</div><br>Life happens fund</td><td class="col-why">Warm framing of a practical necessity</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Budget Editing & Warnings</div>
+      <table class="copy-table">
+        <thead><tr><th>Context</th><th>❌ Don't Write</th><th>✅ Write Instead</th><th>📌 Rationale</th></tr></thead>
+        <tbody>
+          <tr><td class="col-context">Over-allocation</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Budget exceeds income. Reduce categories.</td><td class="col-do"><div class="do-tag">USE</div><br>You've allocated ₦2,000 more than you earn. Which category can you trim?</td><td class="col-why">Collaborative framing; user gets to decide</td></tr>
+          <tr><td class="col-context">Unallocated funds</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>₦3,000 unallocated remaining</td><td class="col-do"><div class="do-tag">USE</div><br>₦3,000 still unassigned — add it to savings, or to a category?</td><td class="col-why">Offers a path; doesn't leave users hanging</td></tr>
+          <tr><td class="col-context">Budget deleted</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Budget deleted successfully</td><td class="col-do"><div class="do-tag">USE</div><br>Budget removed. All your history is still saved.</td><td class="col-why">Reassures users their data isn't lost</td></tr>
+          <tr><td class="col-context">Month rollover</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>New billing cycle started</td><td class="col-do"><div class="do-tag">USE</div><br>New month, fresh start. Your budgets have reset — ₦22,000 ready to allocate.</td><td class="col-why">Energizing language at a natural motivation peak</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- EXPENSES -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="section" id="sec-expenses">
+    <div class="section-header">
+      <div class="section-number">05</div>
+      <div class="section-title-block">
+        <div class="section-eyebrow">Core Flow</div>
+        <div class="section-title">Expense Logging</div>
+      </div>
+    </div>
+    <p class="section-desc">The faster and more frictionless logging is, the more users do it. Every word in the expense logging flow should be terse and direct. No explanatory paragraphs — just actions.</p>
+
+    <div class="subsection">
+      <div class="subsection-title">Expense Log Flow</div>
+      <div class="flow-diagram">
+        <div class="flow-step">
+          <div class="flow-node">➕</div>
+          <div class="flow-label">Tap Log Expense</div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-node">🏷️</div>
+          <div class="flow-label">Pick Category</div>
+          <div class="flow-copy">Quick-tap grid</div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-node">💵</div>
+          <div class="flow-label">Enter Amount</div>
+          <div class="flow-copy">Numeric keypad</div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-node decision">⚡</div>
+          <div class="flow-label">Near Limit?</div>
+          <div class="flow-copy">Soft warning</div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-node end">✅</div>
+          <div class="flow-label">Logged!</div>
+          <div class="flow-copy">"₦400 from food"</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Expense Log Microcopy</div>
+      <table class="copy-table">
+        <thead><tr><th>Context</th><th>❌ Don't Write</th><th>✅ Write Instead</th><th>📌 Rationale</th></tr></thead>
+        <tbody>
+          <tr><td class="col-context">Log CTA (FAB)</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>+ New Transaction</td><td class="col-do"><div class="do-tag">USE</div><br>+ Log expense</td><td class="col-why">"Transaction" is a bank word; "expense" is plain English</td></tr>
+          <tr><td class="col-context">Success confirmation</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Transaction recorded successfully</td><td class="col-do"><div class="do-tag">USE</div><br>Logged. ₦400 from food budget.</td><td class="col-why">Confirms the action + shows the impact immediately</td></tr>
+          <tr><td class="col-context">Near-limit warning</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Warning: approaching budget limit</td><td class="col-do"><div class="do-tag">USE</div><br>Heads up — only ₦300 left in food this week.</td><td class="col-why">Casual tone; specific remaining amount removes guesswork</td></tr>
+          <tr><td class="col-context">Over budget on log</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Category limit exceeded</td><td class="col-do"><div class="do-tag">USE</div><br>This puts food ₦150 over budget. Log it anyway?</td><td class="col-why">States consequence + gives user agency to decide</td></tr>
+          <tr><td class="col-context">Note field placeholder</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Transaction description</td><td class="col-do"><div class="do-tag">USE</div><br>Add a note — "jollof from mama put"</td><td class="col-why">Relatable example (local food reference) invites engagement</td></tr>
+          <tr><td class="col-context">Edit expense</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Modify transaction record</td><td class="col-do"><div class="do-tag">USE</div><br>Edit this expense</td><td class="col-why">Simple, clear, no ceremony</td></tr>
+          <tr><td class="col-context">Delete expense</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Permanently delete this record?</td><td class="col-do"><div class="do-tag">USE</div><br>Remove this expense? Your budget will update.</td><td class="col-why">States the consequence; removes ambiguity about what changes</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- GOALS -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="section" id="sec-goals">
+    <div class="section-header">
+      <div class="section-number">06</div>
+      <div class="section-title-block">
+        <div class="section-eyebrow">Core Flow</div>
+        <div class="section-title">Savings Goals</div>
+      </div>
+    </div>
+    <p class="section-desc">Savings goals are an emotional feature — users are planning for things they want or need. The copy should be motivating, celebratory at milestones, and honest about pace without inducing guilt.</p>
+
+    <div class="subsection">
+      <div class="subsection-title">Goal Creation Flow</div>
+      <div class="onboarding-flow">
+        <div class="ob-step">
+          <div class="ob-num">1</div>
+          <div class="ob-content">
+            <div class="ob-screen-label">Goal Setup</div>
+            <div class="ob-screen-title">Name your goal</div>
+            <div class="ob-copy-rows">
+              <div class="ob-copy-row"><span class="ob-copy-type">Headline</span><span class="ob-copy-text">What are you saving for?</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Subhead</span><span class="ob-copy-text">Give it a name that motivates you. "Emergency fund," "New phone," "Trip to Accra" — anything works.</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Placeholder</span><span class="ob-copy-text">e.g. New laptop, NYSC trip, Emergency fund</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Suggestions</span><span class="ob-copy-text">Quick picks: 🎒 Trip · 📱 New phone · 🏥 Emergency · 📚 School fees</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="ob-step">
+          <div class="ob-num">2</div>
+          <div class="ob-content">
+            <div class="ob-screen-label">Goal Amount</div>
+            <div class="ob-screen-title">How much do you need?</div>
+            <div class="ob-copy-rows">
+              <div class="ob-copy-row"><span class="ob-copy-type">Headline</span><span class="ob-copy-text">Set your target</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Helper</span><span class="ob-copy-text">Not sure? Enter your best guess — you can change it later.</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Field</span><span class="ob-copy-text">Target amount</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="ob-step">
+          <div class="ob-num">3</div>
+          <div class="ob-content">
+            <div class="ob-screen-label">Timeline</div>
+            <div class="ob-screen-title">When do you want to reach it?</div>
+            <div class="ob-copy-rows">
+              <div class="ob-copy-row"><span class="ob-copy-type">Headline</span><span class="ob-copy-text">Pick a target date</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Calc result</span><span class="ob-copy-text">To reach ₦30,000 by December, you'd need to save ₦5,000/month.</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Adjust</span><span class="ob-copy-text">That too much? Move your date back or lower the target.</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Skip</span><span class="ob-copy-text">No deadline — I'll save what I can</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="ob-step">
+          <div class="ob-num">4</div>
+          <div class="ob-content">
+            <div class="ob-screen-label">Auto-save</div>
+            <div class="ob-screen-title">Want to automate it?</div>
+            <div class="ob-copy-rows">
+              <div class="ob-copy-row"><span class="ob-copy-type">Headline</span><span class="ob-copy-text">Set it and forget it</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Subhead</span><span class="ob-copy-text">We'll remind you to move ₦5,000 to this goal on the 1st of every month.</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">CTA: Yes</span><span class="ob-copy-text">Yes — remind me monthly</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">CTA: No</span><span class="ob-copy-text">I'll add money myself</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="ob-step">
+          <div class="ob-num">5</div>
+          <div class="ob-content">
+            <div class="ob-screen-label">Confirmation</div>
+            <div class="ob-screen-title">Goal Created</div>
+            <div class="ob-copy-rows">
+              <div class="ob-copy-row"><span class="ob-copy-type">Headline</span><span class="ob-copy-text">Your "New Laptop" goal is set.</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Progress</span><span class="ob-copy-text">₦0 of ₦30,000 · 0% there</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Nudge</span><span class="ob-copy-text">Add your first ₦1,000 now to get the ball rolling?</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">CTA</span><span class="ob-copy-text">Add ₦1,000 now</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Skip</span><span class="ob-copy-text">I'll add money later</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Progress & Milestone Copy</div>
+      <table class="copy-table">
+        <thead><tr><th>Context</th><th>❌ Don't Write</th><th>✅ Write Instead</th><th>📌 Rationale</th></tr></thead>
+        <tbody>
+          <tr><td class="col-context">Early progress (10%)</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>10% complete</td><td class="col-do"><div class="do-tag">USE</div><br>₦3,000 saved — you've started. That's more than most people do.</td><td class="col-why">Validates early effort; "most people don't start" is real and motivating</td></tr>
+          <tr><td class="col-context">Halfway milestone</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>50% of goal reached</td><td class="col-do"><div class="do-tag">USE</div><br>Halfway! ₦15,000 saved. You're on track for December.</td><td class="col-why">Celebration + affirms pace</td></tr>
+          <tr><td class="col-context">Goal completed</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Savings goal achieved</td><td class="col-do"><div class="do-tag">USE</div><br>You saved ₦30,000. Go get that laptop. 🎉</td><td class="col-why">References what the money is actually for; energetic and specific</td></tr>
+          <tr><td class="col-context">Behind schedule</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Goal progress behind target</td><td class="col-do"><div class="do-tag">USE</div><br>You're a bit behind. Adding ₦2,000 extra this month keeps you on track.</td><td class="col-why">Specific catch-up number replaces vague anxiety with a plan</td></tr>
+          <tr><td class="col-context">Withdrawal from goal</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Withdrawal recorded</td><td class="col-do"><div class="do-tag">USE</div><br>₦2,000 removed from your laptop fund. Updated: ₦13,000 saved.</td><td class="col-why">Non-judgmental; just states the new total</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- GROUP SPLITS -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="section" id="sec-splits">
+    <div class="section-header">
+      <div class="section-number">07</div>
+      <div class="section-title-block">
+        <div class="section-eyebrow">Social Feature</div>
+        <div class="section-title">Group Splits</div>
+      </div>
+    </div>
+    <p class="section-desc">Splitting bills with roommates and classmates is a core student behavior. This feature is socially sensitive — chasing friends for money is awkward. Copy must make reminders feel friendly, not demanding.</p>
+
+    <div class="subsection">
+      <div class="subsection-title">Split Bill Flow Copy</div>
+      <div class="onboarding-flow">
+        <div class="ob-step">
+          <div class="ob-num">1</div>
+          <div class="ob-content">
+            <div class="ob-screen-label">New Split</div>
+            <div class="ob-screen-title">Create a group expense</div>
+            <div class="ob-copy-rows">
+              <div class="ob-copy-row"><span class="ob-copy-type">Headline</span><span class="ob-copy-text">Who's splitting this?</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Helper</span><span class="ob-copy-text">Add friends from your contacts or by phone number. They don't need Pesa to join.</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Field</span><span class="ob-copy-text">What's this for? (e.g. "House rent — July")</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="ob-step">
+          <div class="ob-num">2</div>
+          <div class="ob-content">
+            <div class="ob-screen-label">Amount</div>
+            <div class="ob-screen-title">Total amount</div>
+            <div class="ob-copy-rows">
+              <div class="ob-copy-row"><span class="ob-copy-type">Calc</span><span class="ob-copy-text">Split 4 ways: ₦5,000 each</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Custom</span><span class="ob-copy-text">Split equally · Split custom amounts</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Custom helper</span><span class="ob-copy-text">Adjust each person's share below. They'll add up to ₦20,000.</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="ob-step">
+          <div class="ob-num">3</div>
+          <div class="ob-content">
+            <div class="ob-screen-label">Notification</div>
+            <div class="ob-screen-title">Notify group</div>
+            <div class="ob-copy-rows">
+              <div class="ob-copy-row"><span class="ob-copy-type">SMS sent</span><span class="ob-copy-text">"Hey Tunde! Amara says you owe ₦5,000 for house rent. Pay here: [link]"</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Confirmation</span><span class="ob-copy-text">Requests sent to 3 people. You'll get notified when they pay.</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="ob-step">
+          <div class="ob-num">4</div>
+          <div class="ob-content">
+            <div class="ob-screen-label">Reminders</div>
+            <div class="ob-screen-title">Gentle follow-up</div>
+            <div class="ob-copy-rows">
+              <div class="ob-copy-row"><span class="ob-copy-type">Reminder SMS</span><span class="ob-copy-text">"Hey! Just a nudge — ₦5,000 for house rent is still pending. Amara will appreciate it 🙏"</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">Paid notif</span><span class="ob-copy-text">"Tunde paid their ₦5,000. 2 of 3 paid — 1 still outstanding."</span></div>
+              <div class="ob-copy-row"><span class="ob-copy-type">All paid</span><span class="ob-copy-text">"Everyone paid! ₦20,000 settled. No awkward conversations needed. 🙌"</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Splits Microcopy</div>
+      <table class="copy-table">
+        <thead><tr><th>Context</th><th>❌ Don't Write</th><th>✅ Write Instead</th><th>📌 Rationale</th></tr></thead>
+        <tbody>
+          <tr><td class="col-context">Reminder CTA</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Send Payment Reminder</td><td class="col-do"><div class="do-tag">USE</div><br>Send a gentle nudge</td><td class="col-why">"Nudge" is softer; friendships matter more than money</td></tr>
+          <tr><td class="col-context">Overdue status</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Payment overdue</td><td class="col-do"><div class="do-tag">USE</div><br>Still waiting on Tunde's share</td><td class="col-why">Names the person; fact, not accusation</td></tr>
+          <tr><td class="col-context">Mark as paid</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Record manual payment</td><td class="col-do"><div class="do-tag">USE</div><br>Mark as paid outside Pesa</td><td class="col-why">Acknowledges cash payment reality in Africa</td></tr>
+          <tr><td class="col-context">Paid in full</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>All payments received</td><td class="col-do"><div class="do-tag">USE</div><br>Everyone paid! ₦20,000 settled. 🙌</td><td class="col-why">Celebratory; closing a financial loop deserves acknowledgment</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- ERRORS -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="section" id="sec-errors">
+    <div class="section-header">
+      <div class="section-number">08</div>
+      <div class="section-title-block">
+        <div class="section-eyebrow">System States</div>
+        <div class="section-title">Errors & Alerts</div>
+      </div>
+    </div>
+    <p class="section-desc">Error messages are the most read copy in any app. Users who hit an error are already frustrated. Copy must acknowledge, explain simply, and give one clear next step. Never blame the user.</p>
+
+    <div class="subsection">
+      <div class="subsection-title">Error State Cards</div>
+      <div class="error-grid">
+        <div class="error-card">
+          <div class="error-icon">📵</div>
+          <div class="error-title">No Internet</div>
+          <div class="error-msg">You're offline. Check your data or wifi — your budgets are still saved locally.</div>
+          <button class="error-cta">Try again</button>
+        </div>
+        <div class="error-card">
+          <div class="error-icon">⏳</div>
+          <div class="error-title">Taking too long</div>
+          <div class="error-msg">That's taking longer than usual. Might be on our side. Try again in a moment.</div>
+          <button class="error-cta">Retry</button>
+        </div>
+        <div class="error-card">
+          <div class="error-icon">🚫</div>
+          <div class="error-title">Session expired</div>
+          <div class="error-msg">You've been logged out for security. Sign back in to continue.</div>
+          <button class="error-cta">Sign back in</button>
+        </div>
+      </div>
+      <div class="callout warn"><div class="callout-icon">⚠️</div><div class="callout-text"><strong>Key principle:</strong> Never say "Something went wrong" without a next step. Always give the user one clear action to take. Never blame the user — even if the error is their fault.</div></div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">All Error States — Copy</div>
+      <table class="copy-table">
+        <thead><tr><th>Error Type</th><th>❌ Don't Write</th><th>✅ Write Instead</th><th>📌 Rationale</th></tr></thead>
+        <tbody>
+          <tr><td class="col-context">OTP wrong</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Authentication failed</td><td class="col-do"><div class="do-tag">USE</div><br>That code doesn't match. Try again — or request a new one.</td><td class="col-why">Human language + two paths forward</td></tr>
+          <tr><td class="col-context">OTP expired</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>OTP expired. Re-initiate.</td><td class="col-do"><div class="do-tag">USE</div><br>Code expired — they only last 5 minutes. Get a new one.</td><td class="col-why">Explains the rule; friendly imperative</td></tr>
+          <tr><td class="col-context">Invalid amount</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Invalid input</td><td class="col-do"><div class="do-tag">USE</div><br>Amount must be more than ₦0. What did you spend?</td><td class="col-why">Specific constraint + conversational re-prompt</td></tr>
+          <tr><td class="col-context">Over income</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Budget allocation exceeds income</td><td class="col-do"><div class="do-tag">USE</div><br>You've allocated ₦4,000 more than you earn. Reduce one category to balance.</td><td class="col-why">Exact shortfall + actionable instruction</td></tr>
+          <tr><td class="col-context">No name entered</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Name field cannot be empty</td><td class="col-do"><div class="do-tag">USE</div><br>We need a name to get started — even just a nickname works.</td><td class="col-why">Lowers the bar; removes formality anxiety</td></tr>
+          <tr><td class="col-context">Server error</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Error 500: Internal Server Error</td><td class="col-do"><div class="do-tag">USE</div><br>Something broke on our end. This isn't your fault. Try again in a minute.</td><td class="col-why">Takes responsibility; human tone; time-bounded expectation</td></tr>
+          <tr><td class="col-context">Phone number exists</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>User already exists with this number</td><td class="col-do"><div class="do-tag">USE</div><br>Looks like you already have an account. Sign in instead?</td><td class="col-why">Positive framing; suggests the right path</td></tr>
+          <tr><td class="col-context">Data load failure</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Failed to fetch data</td><td class="col-do"><div class="do-tag">USE</div><br>Couldn't load your data. Pull down to refresh.</td><td class="col-why">Specific action: pull-to-refresh; assumes user knows the gesture</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- EMPTY STATES -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="section" id="sec-empty">
+    <div class="section-header">
+      <div class="section-number">09</div>
+      <div class="section-title-block">
+        <div class="section-eyebrow">System States</div>
+        <div class="section-title">Empty States</div>
+      </div>
+    </div>
+    <p class="section-desc">Empty states are onboarding moments in disguise. They should educate, invite action, and make users feel like they're one tap away from something useful. Never just say "Nothing here yet."</p>
+
+    <div class="subsection">
+      <div class="subsection-title">Empty State Cards</div>
+      <div class="empty-grid">
+        <div class="empty-card">
+          <div class="empty-illus">🧾</div>
+          <div class="empty-title">No expenses yet</div>
+          <div class="empty-desc">Log your first expense and Pesa will start tracking where your money goes. Even ₦100 counts.</div>
+          <button class="empty-cta">Log my first expense</button>
+        </div>
+        <div class="empty-card">
+          <div class="empty-illus">🎯</div>
+          <div class="empty-title">No savings goals</div>
+          <div class="empty-desc">Got something you're saving for? Set a goal and we'll help you get there — ₦100 at a time.</div>
+          <button class="empty-cta">Create a goal</button>
+        </div>
+        <div class="empty-card">
+          <div class="empty-illus">📊</div>
+          <div class="empty-title">No spending data yet</div>
+          <div class="empty-desc">Log a few expenses and your breakdown will appear here. Give it a few days.</div>
+          <button class="empty-cta">Start logging</button>
+        </div>
+        <div class="empty-card">
+          <div class="empty-illus">🤝</div>
+          <div class="empty-title">No group splits</div>
+          <div class="empty-desc">Split rent, food, or a group trip with your friends. No awkward money conversations needed.</div>
+          <button class="empty-cta">Start a split</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Empty State Microcopy</div>
+      <table class="copy-table">
+        <thead><tr><th>Screen</th><th>❌ Don't Write</th><th>✅ Write Instead</th><th>📌 Rationale</th></tr></thead>
+        <tbody>
+          <tr><td class="col-context">No expenses</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>No transactions found</td><td class="col-do"><div class="do-tag">USE</div><br>Log your first expense and Pesa will start tracking where your money goes.</td><td class="col-why">Action + value proposition; not just absence</td></tr>
+          <tr><td class="col-context">No goals</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>You have no savings goals</td><td class="col-do"><div class="do-tag">USE</div><br>Got something you're saving for? Set a goal and we'll help you get there.</td><td class="col-why">Question format engages; "we'll help" signals partnership</td></tr>
+          <tr><td class="col-context">No budget</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>No budget created</td><td class="col-do"><div class="do-tag">USE</div><br>You haven't set a budget yet. Takes 2 minutes — and it's worth it.</td><td class="col-why">Time estimate reduces friction; "worth it" adds conviction</td></tr>
+          <tr><td class="col-context">No search results</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>No results found</td><td class="col-do"><div class="do-tag">USE</div><br>Nothing matches that search. Try a different category or date range.</td><td class="col-why">Offers two specific alternatives to retry</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- NOTIFICATIONS -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="section" id="sec-notifications">
+    <div class="section-header">
+      <div class="section-number">10</div>
+      <div class="section-title-block">
+        <div class="section-eyebrow">System States</div>
+        <div class="section-title">Push Notifications</div>
+      </div>
+    </div>
+    <p class="section-desc">Notifications from Pesa must be specific, timely, and worth reading. Generic notifications train users to ignore them. Every notification should either alert, celebrate, or teach — in under 12 words.</p>
+
+    <div class="subsection">
+      <div class="subsection-title">Notification Examples</div>
+      <div class="notif-grid">
+        <div class="notif-card">
+          <div class="notif-header">
+            <div class="notif-app-icon">💚</div>
+            <div><div class="notif-app-name">Pesa</div></div>
+            <div class="notif-time">now</div>
+          </div>
+          <div class="notif-title">You're almost out of food budget 🍔</div>
+          <div class="notif-body">Only ₦400 left this week. 8 days to go — cook more or top up?</div>
+        </div>
+        <div class="notif-card">
+          <div class="notif-header">
+            <div class="notif-app-icon">💚</div>
+            <div><div class="notif-app-name">Pesa</div></div>
+            <div class="notif-time">2m ago</div>
+          </div>
+          <div class="notif-title">Tunde paid their share! 🙌</div>
+          <div class="notif-body">₦5,000 received for house rent. 1 person left to pay.</div>
+        </div>
+        <div class="notif-card">
+          <div class="notif-header">
+            <div class="notif-app-icon">💚</div>
+            <div><div class="notif-app-name">Pesa</div></div>
+            <div class="notif-time">8:00 AM</div>
+          </div>
+          <div class="notif-title">Good morning, Amara ☀️</div>
+          <div class="notif-body">₦12,400 left this month. Quick log from yesterday?</div>
+        </div>
+        <div class="notif-card">
+          <div class="notif-header">
+            <div class="notif-app-icon">💚</div>
+            <div><div class="notif-app-name">Pesa</div></div>
+            <div class="notif-time">yesterday</div>
+          </div>
+          <div class="notif-title">Goal reached! 🎉</div>
+          <div class="notif-body">You hit your ₦30,000 laptop goal. Time to reward yourself.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Full Notification Copy Library</div>
+      <table class="copy-table">
+        <thead><tr><th>Trigger</th><th>❌ Generic</th><th>✅ Pesa Copy</th><th>📌 Rationale</th></tr></thead>
+        <tbody>
+          <tr><td class="col-context">80% of budget used</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Budget alert: 80% used in food</td><td class="col-do"><div class="do-tag">USE</div><br>You've spent 80% of your food budget with 8 days left. Heads up.</td><td class="col-why">Specific remaining days create real urgency</td></tr>
+          <tr><td class="col-context">Over budget</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Budget exceeded</td><td class="col-do"><div class="do-tag">USE</div><br>Food went over by ₦600 this week. See where it went?</td><td class="col-why">Exact overage + CTA to investigate; non-judgmental</td></tr>
+          <tr><td class="col-context">Daily morning nudge</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Don't forget to log your expenses</td><td class="col-do"><div class="do-tag">USE</div><br>Good morning! ₦12,400 left this month. Log anything from yesterday?</td><td class="col-why">Balance shown + specific action (yesterday's expenses)</td></tr>
+          <tr><td class="col-context">Goal milestone: 50%</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>You're 50% toward your goal</td><td class="col-do"><div class="do-tag">USE</div><br>Halfway there — ₦15,000 saved for your laptop goal. 🙌</td><td class="col-why">Emoji + goal name makes it feel personal</td></tr>
+          <tr><td class="col-context">Goal completed</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Savings goal completed</td><td class="col-do"><div class="do-tag">USE</div><br>₦30,000 saved. Goal complete. Time to get that laptop! 🎉</td><td class="col-why">References the actual goal; energy matches the achievement</td></tr>
+          <tr><td class="col-context">7-day streak</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>7-day logging streak</td><td class="col-do"><div class="do-tag">USE</div><br>7 days of logging! You're building a real habit. Keep it up 🔥</td><td class="col-why">Celebrates the behavior, not the app feature</td></tr>
+          <tr><td class="col-context">Streak broken</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Logging streak broken</td><td class="col-do"><div class="do-tag">USE</div><br>Missed a day — no biggie. Log today and start a new streak.</td><td class="col-why">Removes shame; immediately restarts the loop</td></tr>
+          <tr><td class="col-context">Month end summary</td><td class="col-dont"><div class="dont-tag">AVOID</div><br>Your monthly financial summary is ready</td><td class="col-do"><div class="do-tag">USE</div><br>June's done. You spent ₦38,000 and saved ₦4,000. See how it broke down?</td><td class="col-why">Data-specific; invites curiosity rather than dread</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- A/B TESTS -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="section" id="sec-ab">
+    <div class="section-header">
+      <div class="section-number">11</div>
+      <div class="section-title-block">
+        <div class="section-eyebrow">Testing</div>
+        <div class="section-title">A/B Testing Templates</div>
+      </div>
+    </div>
+    <p class="section-desc">A/B tests on UX copy must test one variable at a time and measure meaningful outcomes: completion rate, drop-off, support contact rate, or retention. These templates are ready to run.</p>
+
+    <div class="subsection">
+      <div class="subsection-title">Test 01 — Onboarding Welcome CTA</div>
+      <div class="callout note"><div class="callout-icon">🧪</div><div class="callout-text"><strong>Hypothesis:</strong> Using "it's free" in the CTA will reduce sign-up hesitation by removing price anxiety before users consider it. Expected lift: +8% sign-up rate.</div></div>
+      <table class="ab-table">
+        <thead><tr><th>Element</th><th>Variant A (Control)</th><th>Variant B (Test)</th></tr></thead>
+        <tbody>
+          <tr><td>Primary CTA</td><td>Get started</td><td>Get started — it's free</td></tr>
+          <tr><td>Sub-label</td><td>Join students building better money habits</td><td>No bank account needed</td></tr>
+          <tr><td>Measure</td><td colspan="2">Sign-up completion rate (step 1 → step 7)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Test 02 — Over-Budget Alert Tone</div>
+      <div class="callout note"><div class="callout-icon">🧪</div><div class="callout-text"><strong>Hypothesis:</strong> A non-judgmental, curious framing ("See where it went?") will increase click-through on over-budget alerts vs. a directive framing. Expected lift: +12% notification CTR.</div></div>
+      <table class="ab-table">
+        <thead><tr><th>Element</th><th>Variant A (Control)</th><th>Variant B (Test)</th></tr></thead>
+        <tbody>
+          <tr><td>Alert title</td><td>Food budget exceeded</td><td>Food went over this week</td></tr>
+          <tr><td>Alert body</td><td>You've spent more than your food limit. Review your expenses.</td><td>Food went over by ₦600. See where it went?</td></tr>
+          <tr><td>CTA</td><td>Review</td><td>Show me</td></tr>
+          <tr><td>Measure</td><td colspan="2">Notification open rate + expense screen visits</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Test 03 — Savings Goal Completion Screen</div>
+      <div class="callout note"><div class="callout-icon">🧪</div><div class="callout-text"><strong>Hypothesis:</strong> Referencing what the user saved for (goal name) in the completion message will increase sharing behavior and "create new goal" tap rate by making the win feel personal.</div></div>
+      <table class="ab-table">
+        <thead><tr><th>Element</th><th>Variant A (Control)</th><th>Variant B (Test)</th></tr></thead>
+        <tbody>
+          <tr><td>Headline</td><td>Goal reached! 🎉</td><td>You saved ₦30,000. Go get that laptop. 🎉</td></tr>
+          <tr><td>Subtext</td><td>Congratulations on completing your goal.</td><td>That took real discipline. What are you saving for next?</td></tr>
+          <tr><td>Primary CTA</td><td>Done</td><td>Start a new goal</td></tr>
+          <tr><td>Measure</td><td colspan="2">New goal creation rate within 48hr of goal completion</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Test 04 — Expense Log Confirmation</div>
+      <div class="callout note"><div class="callout-icon">🧪</div><div class="callout-text"><strong>Hypothesis:</strong> Showing remaining budget in the confirmation message will reinforce the value of logging and increase daily active logging rate.</div></div>
+      <table class="ab-table">
+        <thead><tr><th>Element</th><th>Variant A (Control)</th><th>Variant B (Test)</th></tr></thead>
+        <tbody>
+          <tr><td>Confirmation</td><td>Expense logged ✓</td><td>Logged. ₦400 from food — ₦3,200 left this week.</td></tr>
+          <tr><td>Measure</td><td colspan="2">7-day logging retention rate</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════ -->
+  <!-- CHECKLIST -->
+  <!-- ════════════════════════════════════════════════════════ -->
+  <div class="section" id="sec-checklist">
+    <div class="section-header">
+      <div class="section-number">12</div>
+      <div class="section-title-block">
+        <div class="section-eyebrow">Reference</div>
+        <div class="section-title">UX Writer's Checklist</div>
+      </div>
+    </div>
+    <p class="section-desc">Run every Pesa screen through this checklist before shipping. Click to mark items done.</p>
+
+    <div class="subsection">
+      <div class="subsection-title">Clarity & Language</div>
+      <ul class="checklist" id="cl1">
+        <li><div class="check-box" onclick="toggleCheck(this)">✓</div> Every sentence is under 20 words</li>
+        <li><div class="check-box" onclick="toggleCheck(this)">✓</div> No jargon — every financial term is either plain or explained</li>
+        <li><div class="check-box" onclick="toggleCheck(this)">✓</div> Active voice throughout ("We sent" not "A code was sent")</li>
+        <li><div class="check-box" onclick="toggleCheck(this)">✓</div> One idea per sentence, one action per screen</li>
+        <li><div class="check-box" onclick="toggleCheck(this)">✓</div> Currency amounts are specific (₦1,200, not "some money")</li>
+      </ul>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Tone & Emotion</div>
+      <ul class="checklist">
+        <li><div class="check-box" onclick="toggleCheck(this)">✓</div> Error messages don't blame the user</li>
+        <li><div class="check-box" onclick="toggleCheck(this)">✓</div> Every error has exactly one actionable next step</li>
+        <li><div class="check-box" onclick="toggleCheck(this)">✓</div> Over-budget states are framed as information, not failure</li>
+        <li><div class="check-box" onclick="toggleCheck(this)">✓</div> Celebration copy matches the size of the win (don't overdo small things)</li>
+        <li><div class="check-box" onclick="toggleCheck(this)">✓</div> No shame, lectures, or condescension anywhere</li>
+      </ul>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Cultural Fit</div>
+      <ul class="checklist">
+        <li><div class="check-box" onclick="toggleCheck(this)">✓</div> Copy references local realities (MPESA, okada, canteen, etc.) where appropriate</li>
+        <li><div class="check-box" onclick="toggleCheck(this)">✓</div> No idioms that don't translate across African markets</li>
+        <li><div class="check-box" onclick="toggleCheck(this)">✓</div> Currency format is consistent and market-appropriate</li>
+        <li><div class="check-box" onclick="toggleCheck(this)">✓</div> "Sending money home" is acknowledged as a normal, non-shameful expense</li>
+        <li><div class="check-box" onclick="toggleCheck(this)">✓</div> Income fields accommodate irregular/freelance pay cycles</li>
+      </ul>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Completeness</div>
+      <ul class="checklist">
+        <li><div class="check-box" onclick="toggleCheck(this)">✓</div> Every screen has a headline, body (if needed), and CTA</li>
+        <li><div class="check-box" onclick="toggleCheck(this)">✓</div> All empty states have copy and an action button</li>
+        <li><div class="check-box" onclick="toggleCheck(this)">✓</div> All error states are covered, including network/timeout</li>
+        <li><div class="check-box" onclick="toggleCheck(this)">✓</div> Button labels are verbs, not nouns ("Log expense" not "Expense Log")</li>
+        <li><div class="check-box" onclick="toggleCheck(this)">✓</div> Skip/cancel paths exist and have copy</li>
+      </ul>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">Accessibility</div>
+      <ul class="checklist">
+        <li><div class="check-box" onclick="toggleCheck(this)">✓</div> Icon-only buttons have descriptive ARIA labels</li>
+        <li><div class="check-box" onclick="toggleCheck(this)">✓</div> Color is never the only way information is conveyed</li>
+        <li><div class="check-box" onclick="toggleCheck(this)">✓</div> Reading level accessible to a general 18–25 year old audience</li>
+        <li><div class="check-box" onclick="toggleCheck(this)">✓</div> Form helper text is visible (not just placeholder) for required fields</li>
+      </ul>
+    </div>
+
+    <div style="margin-top:40px;background:var(--emerald);border-radius:16px;padding:28px 32px;color:var(--white);">
+      <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;margin-bottom:8px;">Catalog Complete</div>
+      <div style="font-size:14px;opacity:0.85;line-height:1.7;max-width:560px;">This catalog was written by <strong>Maha Noor</strong> for Pesa — a student budgeting app for Sub-Saharan Africa. Every word was chosen to be accessible, culturally resonant, and financially empowering for the next generation of African students managing their own money.</div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  function showSection(id) {
+    // Hide all sections
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+    // Show target
+    document.getElementById('sec-' + id).classList.add('active');
+
+    // Highlight nav
+    document.querySelectorAll('.nav-item').forEach(n => {
+      if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'" + id + "'")) {
+        n.classList.add('active');
+      }
+    });
+
+    // Scroll to top
+    document.querySelector('.main').scrollTop = 0;
+  }
+
+  function toggleCheck(el) {
+    el.classList.toggle('checked');
+    if (el.classList.contains('checked')) {
+      el.style.background = 'var(--emerald)';
+      el.style.borderColor = 'var(--emerald)';
+      el.style.color = 'var(--white)';
+    } else {
+      el.style.background = '';
+      el.style.borderColor = '';
+      el.style.color = '';
+    }
+  }
+
+  // Progress bar
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY / (document.body.scrollHeight - window.innerHeight);
+    document.getElementById('progressBar').style.transform = `scaleX(${scrolled})`;
+  }, { passive: true });
+</script>
+</body>
+</html>
